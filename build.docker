@@ -1,6 +1,7 @@
 FROM deployme-base
 
-RUN apt-get install -qy libffi-dev libssl-dev pypy-dev
+RUN apt-get install -qyy \
+    libffi-dev libssl-dev pypy-dev
 RUN /appenv/bin/pip install wheel
 
 ENV WHEELHOUSE=/wheelhouse

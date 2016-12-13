@@ -1,15 +1,27 @@
-FROM ubuntu:trusty
+# -*-shell-script-*-
+FROM blitznote/debootstrap-amd64:16.04
 
-RUN echo "deb http://ppa.launchpad.net/pypy/ppa/ubuntu trusty main" > \
-    /etc/apt/sources.list.d/pypy-ppa.list
-
-RUN apt-key adv --keyserver keyserver.ubuntu.com \
-                --recv-keys 2862D0785AFACD8C65B23DB0251104D968854915
 RUN apt-get update
 
-RUN apt-get install -qyy \
-    -o APT::Install-Recommends=false -o APT::Install-Suggests=false \
-    python-virtualenv pypy libffi6 openssl
+# "slim" 16.04 image, doesn't incl. (gnupg) dirmngr
+RUN apt-get install -qyy  -o APT::Install-Suggests=false \
+    dirmngr python-virtualenv libffi6 openssl \
+    software-properties-common python-software-properties
+
+RUN add-apt-repository ppa:pypy/ppa
+
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv \
+    251104D968854915 > /dev/null
+
+# RUN printf '\n\
+# deb http://ppa.launchpad.net/pypy/ppa/ubuntu xenial main\n\
+# deb-src http://ppa.launchpad.net/pypy/ppa/ubuntu xenial main'\
+#  > /etc/apt/sources.list.d/pypy-ppa.list
+
+RUN apt-get update; \
+    apt-get install -qyy  -o APT::Install-Suggests=false \
+      pypy python-cffi
 
 RUN virtualenv -p /usr/bin/pypy /appenv
-RUN /appenv/bin/pip install pip==6.0.8
+RUN /appenv/bin/pip install pip==6.0.8; \
+    /appenv/bin/pip install --upgrade pip
